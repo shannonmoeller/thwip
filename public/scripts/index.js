@@ -16,7 +16,7 @@ function createGameState() {
 		isGrabbing: false,
 
 		hook: {
-			x: 200,
+			x: 150,
 			y: 0,
 			mass: 0,
 		},
@@ -39,7 +39,7 @@ function createGameState() {
 		},
 
 		platformB: {
-			x: 320,
+			x: 300,
 			y: 220,
 			w: 60,
 			collides: true,
