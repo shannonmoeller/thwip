@@ -40,7 +40,7 @@ function createGameState() {
 		platformB: {
 			x: 300 + Math.round(Math.random() * 150),
 			y: 200 + Math.round(Math.random() * 100),
-			w: 20 + Math.round(Math.random() * 100),
+			w: 20 + Math.round(Math.random() * 150),
 		},
 
 		reset() {
