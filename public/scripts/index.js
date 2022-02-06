@@ -73,6 +73,8 @@ function updateDude() {
 	state.player.y0 = y;
 
 	if (state.isGrabbing) {
+		state.player.x0 -= 0.05;
+
 		for (let i = 3; i--; ) {
 			constrain(state.player, state.anchor, { length: ropeLength });
 		}
@@ -185,7 +187,7 @@ canvas.addEventListener('pointerdown', () => {
 	state.isSwinging = true;
 	state.isGrabbing = true;
 	state.player.x0 = state.player.x + 2;
-	state.player.y0 = state.player.y + 2;
+	state.player.y0 = state.player.y + 1;
 });
 
 canvas.addEventListener('pointerup', () => {
