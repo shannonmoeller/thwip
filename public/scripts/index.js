@@ -34,14 +34,14 @@ function createGameState() {
 		platformA: {
 			x: 100,
 			y: 120,
-			w: 100,
+			w: 60,
 			collides: true,
 		},
 
 		platformB: {
-			x: 400,
+			x: 320,
 			y: 220,
-			w: 100,
+			w: 60,
 			collides: true,
 		},
 	};
@@ -127,7 +127,7 @@ function renderPlatform(platform) {
 	ctx.fillRect(platform.w * -0.5, 0, platform.w, 5);
 
 	ctx.fillStyle = 'deeppink';
-	ctx.fillRect(-20, 0, 40, 5);
+	ctx.fillRect(-15, 0, 30, 5);
 
 	ctx.fillStyle = 'yellow';
 	ctx.fillRect(-5, 0, 10, 5);
