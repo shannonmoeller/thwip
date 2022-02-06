@@ -8,26 +8,26 @@ let ctx = createContext(canvas);
 let timeout = null;
 let gravity = 0.08;
 let state = createGameState();
-let ropeLength = getDistance(state.dude, state.hook);
+let ropeLength = getDistance(state.player, state.anchor);
 
 function createGameState() {
 	return {
 		isSwinging: false,
 		isGrabbing: false,
 
-		hook: {
+		anchor: {
 			x: 150,
 			y: 0,
 			mass: 0,
 		},
 
-		dude: {
+		player: {
 			x: 100,
 			x0: 100,
 			y: 100,
 			y0: 100,
 			w: 10,
-			h: 30,
+			h: 20,
 			mass: 1,
 		},
 
@@ -35,14 +35,19 @@ function createGameState() {
 			x: 100,
 			y: 120,
 			w: 60,
-			collides: true,
 		},
 
 		platformB: {
-			x: 300,
-			y: 220,
-			w: 60,
-			collides: true,
+			x: 300 + Math.round(Math.random() * 100),
+			y: 220 + Math.round(Math.random() * 100),
+			w: 20 + Math.round(Math.random() * 40),
+		},
+
+		reset() {
+			this.isSwinging = false;
+			this.isGrabbing = false;
+			this.player.x = this.player.x0 = 100;
+			this.player.y = this.player.y0 = 100;
 		},
 	};
 }
@@ -56,41 +61,41 @@ function updateDude() {
 		return;
 	}
 
-	let { x, x0, y, y0 } = state.dude;
+	let { x, x0, y, y0 } = state.player;
 	let vx = x - x0;
 	let vy = y - y0;
 
 	vy += gravity;
 
-	state.dude.x = x + vx;
-	state.dude.x0 = x;
-	state.dude.y = y + vy;
-	state.dude.y0 = y;
+	state.player.x = x + vx;
+	state.player.x0 = x;
+	state.player.y = y + vy;
+	state.player.y0 = y;
 
 	if (state.isGrabbing) {
 		for (let i = 3; i--; ) {
-			constrain(state.dude, state.hook, { length: ropeLength });
+			constrain(state.player, state.anchor, { length: ropeLength });
 		}
 	}
 
-	if (state.dude.y > ctx.height) {
-		state = createGameState();
+	if (state.player.y > ctx.height) {
+		state.reset();
 		return;
 	}
 
-	if (state.dude.y + state.dude.h * 0.6 < state.platformB.y) {
+	if (state.player.y + state.player.h < state.platformB.y) {
 		return;
 	}
 
 	if (
-		state.dude.x + state.dude.w * 0.5 <
+		state.player.x + state.player.w * 0.5 <
 		state.platformB.x - state.platformB.w * 0.5
 	) {
 		return;
 	}
 
 	if (
-		state.dude.x - state.dude.w * 0.5 >
+		state.player.x - state.player.w * 0.5 >
 		state.platformB.x + state.platformB.w * 0.5
 	) {
 		return;
@@ -110,7 +115,7 @@ function render() {
 	renderPlatform(state.platformA);
 	renderPlatform(state.platformB);
 	renderRope();
-	renderDude();
+	renderPlayer();
 
 	ctx.restore();
 }
@@ -118,13 +123,15 @@ function render() {
 function renderPlatform(platform) {
 	ctx.save();
 
-	ctx.translate(platform.x, platform.y);
+	const { x, y, w } = platform;
+
+	ctx.translate(x, y);
 
 	ctx.fillStyle = 'black';
-	ctx.fillRect(platform.w * -0.5, 0, platform.w, ctx.height);
+	ctx.fillRect(w * -0.5, 0, w, ctx.height);
 
 	ctx.fillStyle = 'dodgerblue';
-	ctx.fillRect(platform.w * -0.5, 0, platform.w, 5);
+	ctx.fillRect(w * -0.5, 0, w, 5);
 
 	ctx.fillStyle = 'deeppink';
 	ctx.fillRect(-15, 0, 30, 5);
@@ -143,33 +150,25 @@ function renderRope() {
 	ctx.save();
 
 	ctx.beginPath();
-	ctx.moveTo(state.hook.x, state.hook.y);
-	ctx.lineTo(state.dude.x, state.dude.y);
+	ctx.moveTo(state.anchor.x, state.anchor.y);
+	ctx.lineTo(state.player.x, state.player.y);
 	ctx.stroke();
 
 	ctx.restore();
 }
 
-function renderDude() {
+function renderPlayer() {
 	ctx.save();
 
-	ctx.translate(state.dude.x, state.dude.y);
+	const { x, y, h, w } = state.player;
+
+	ctx.translate(x, y);
 
 	ctx.fillStyle = 'white';
-	ctx.fillRect(
-		state.dude.w * -0.5,
-		state.dude.h * -0.4,
-		state.dude.w,
-		state.dude.h
-	);
+	ctx.fillRect(w * -0.5, 0, w, h);
 
 	ctx.strokeStyle = 'black';
-	ctx.strokeRect(
-		state.dude.w * -0.5,
-		state.dude.h * -0.4,
-		state.dude.w,
-		state.dude.h
-	);
+	ctx.strokeRect(w * -0.5, 0, w, h);
 
 	ctx.restore();
 }
@@ -179,12 +178,11 @@ addEventListener('resize', () => resizeContext(ctx), { passive: true });
 
 canvas.addEventListener('pointerdown', () => {
 	clearTimeout(timeout);
-	state = createGameState();
+	state.reset();
 	state.isSwinging = true;
 	state.isGrabbing = true;
-	state.dude.x0 = state.dude.x + 2;
-	state.dude.y0 = state.dude.y + 2;
-	state.platformA.collides = false;
+	state.player.x0 = state.player.x + 2;
+	state.player.y0 = state.player.y + 2;
 });
 
 canvas.addEventListener('pointerup', () => {
