@@ -38,9 +38,9 @@ function createGameState() {
 		},
 
 		platformB: {
-			x: 300 + Math.round(Math.random() * 100),
-			y: 220 + Math.round(Math.random() * 100),
-			w: 20 + Math.round(Math.random() * 40),
+			x: 300 + Math.round(Math.random() * 150),
+			y: 200 + Math.round(Math.random() * 100),
+			w: 20 + Math.round(Math.random() * 100),
 		},
 
 		reset() {
@@ -112,6 +112,9 @@ function render() {
 	ctx.save();
 	ctx.scale(devicePixelRatio, devicePixelRatio);
 
+	let scale = Math.min(ctx.height / 360, ctx.width / 500);
+	ctx.scale(scale, scale);
+
 	renderPlatform(state.platformA);
 	renderPlatform(state.platformB);
 	renderRope();
@@ -128,7 +131,7 @@ function renderPlatform(platform) {
 	ctx.translate(x, y);
 
 	ctx.fillStyle = 'black';
-	ctx.fillRect(w * -0.5, 0, w, ctx.height);
+	ctx.fillRect(w * -0.5, 0, w, ctx.height * 2);
 
 	ctx.fillStyle = 'dodgerblue';
 	ctx.fillRect(w * -0.5, 0, w, 5);
