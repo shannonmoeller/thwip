@@ -1,6 +1,6 @@
-const HERTZ = 120;
-const PANIC = 120;
-const MAX = 3;
+let HERTZ = 120;
+let PANIC = 120;
+let MAX = 3;
 
 export function createLoop(options) {
 	let { update, render } = options;

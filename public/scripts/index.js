@@ -73,7 +73,7 @@ function updateDude() {
 	state.player.y0 = y;
 
 	if (state.isGrabbing) {
-		state.player.x0 -= 0.05;
+		state.player.x0 -= 0.04;
 
 		for (let i = 3; i--; ) {
 			constrain(state.player, state.anchor, { length: ropeLength });
@@ -103,6 +103,10 @@ function updateDude() {
 		return;
 	}
 
+	if (state.player.y + state.player.h * 0.5 < state.platformB.y) {
+		state.player.y = state.platformB.y - state.player.h;
+	}
+
 	state.isSwinging = false;
 	timeout = setTimeout(() => {
 		state = createGameState();
@@ -128,7 +132,7 @@ function render() {
 function renderPlatform(platform) {
 	ctx.save();
 
-	const { x, y, w } = platform;
+	let { x, y, w } = platform;
 
 	ctx.translate(x, y);
 
@@ -165,15 +169,16 @@ function renderRope() {
 function renderPlayer() {
 	ctx.save();
 
-	const { x, y, h, w } = state.player;
+	let { x, y, h, w } = state.player;
+	let head = 10;
 
-	ctx.translate(x, y);
+	ctx.translate(x, y - head);
 
 	ctx.fillStyle = 'white';
-	ctx.fillRect(w * -0.5, 0, w, h);
+	ctx.fillRect(w * -0.5, 0, w, h + head);
 
 	ctx.strokeStyle = 'black';
-	ctx.strokeRect(w * -0.5, 0, w, h);
+	ctx.strokeRect(w * -0.5, 0, w, h + head);
 
 	ctx.restore();
 }

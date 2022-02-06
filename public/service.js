@@ -1,20 +1,20 @@
-const CACHE = 'offline';
+let CACHE = 'offline';
 
 async function toCache(event, response) {
-	const clone = response.clone();
-	const cache = await caches.open(CACHE);
+	let clone = response.clone();
+	let cache = await caches.open(CACHE);
 
 	return cache.put(event.request, clone);
 }
 
 async function fromCache(event) {
-	const cache = await caches.open(CACHE);
+	let cache = await caches.open(CACHE);
 
 	return cache.match(event.request);
 }
 
 async function fromNetwork(event) {
-	const response = await fetch(event.request);
+	let response = await fetch(event.request);
 
 	event.waitUntil(toCache(event, response));
 
