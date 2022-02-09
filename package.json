@@ -12,11 +12,8 @@
       "node": true
     },
     "parserOptions": {
-      "ecmaVersion": 2020,
+      "ecmaVersion": 2021,
       "sourceType": "module"
-    },
-    "rules": {
-      "no-sparse-arrays": "off"
     }
   },
   "stylelint": {
