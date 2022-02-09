@@ -1,16 +1,36 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
 html,
 body,
 canvas {
-	margin: 0;
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
 	background-color: hsl(0 0% 15%);
-	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	color: hsl(0 0% 100%);
+	font: normal 1em/1 sans-serif;
+	-webkit-tap-highlight-color: hsl(0 0% 0% / 0);
 	touch-action: none;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+dl {
+	position: fixed;
+	top: calc(1em + env(safe-area-inset-top));
+	right: calc(1em + env(safe-area-inset-right));
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 0.5em 0;
+}
+
+dd {
+	text-align: right;
 }

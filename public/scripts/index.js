@@ -2,32 +2,66 @@ import { createContext, clearContext, resizeContext } from './canvas.js';
 import { createLoop } from './loop.js';
 import { constrain, getDistance } from './particles.js';
 
+let livesEl = document.getElementById('lives');
+let scoreEl = document.getElementById('score');
+let platformEl = document.getElementById('platform');
+let streakEl = document.getElementById('streak');
+
 let canvas = document.querySelector('canvas');
 let ctx = createContext(canvas);
+
+let second = 1000;
+let minute = second * 60;
+let hour = minute * 60;
+let day = hour * 24;
 
 let timeout = null;
 let gravity = 0.04;
 let jump = 1;
 let pump = 0.02125;
+let good = 10;
+let better = 25;
+let best = 100;
+
 let state = createGameState();
 let ropeLength = getDistance(state.player, state.anchor);
 
 function createGameState() {
+	let then = new Date(2022, 0, 1).setHours(0, 0, 0, 0);
+	let now = new Date().setHours(0, 0, 0, 0);
+	let seed = Math.floor((now - then) / day);
+
+	function random() {
+		let t = (seed += 0x6d2b79f5);
+
+		t = Math.imul(t ^ (t >>> 15), t | 1);
+		t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	}
+
+	function createPlatform() {
+		return {
+			x: 300 + Math.round(random() * 300),
+			y: 200 + Math.round(random() * 100),
+			w: 20 + Math.round(random() * 200),
+		};
+	}
+
 	return {
+		isTouched: false,
 		isSwinging: false,
 		isGrabbing: false,
+
+		lives: 3,
+		score: 0,
+		platform: 1,
+		streak: 0,
 
 		anchor: {
 			x: 200,
 			y: 0,
 			mass: 0,
-		},
-
-		hold: {
-			x: 100,
-			x0: 100,
-			y: 100,
-			y0: 100,
 		},
 
 		player: {
@@ -46,17 +80,24 @@ function createGameState() {
 			w: 60,
 		},
 
-		platformB: {
-			x: 300 + Math.round(Math.random() * 300),
-			y: 200 + Math.round(Math.random() * 100),
-			w: 20 + Math.round(Math.random() * 200),
-		},
+		platformB: createPlatform(),
 
 		reset() {
+			this.isTouched = false;
 			this.isSwinging = false;
 			this.isGrabbing = false;
 			this.player.x = this.player.x0 = 100;
 			this.player.y = this.player.y0 = 100;
+		},
+
+		next() {
+			this.platform += 1;
+			this.isTouched = false;
+			this.isSwinging = false;
+			this.isGrabbing = false;
+			this.player.x = this.player.x0 = 100;
+			this.player.y = this.player.y0 = 100;
+			this.platformB = createPlatform();
 		},
 	};
 }
@@ -90,7 +131,18 @@ function updateDude() {
 	}
 
 	if (state.player.y > ctx.height) {
-		state.reset();
+		if (state.lives) {
+			state.lives -= 1;
+
+			if (state.lives) {
+				state.reset();
+			} else {
+				timeout = setTimeout(() => {
+					state = createGameState();
+				}, 1000);
+			}
+		}
+
 		return;
 	}
 
@@ -116,10 +168,22 @@ function updateDude() {
 		state.player.y = state.platformB.y - state.player.h * 0.5;
 	}
 
+	if (state.player.y + state.player.h * 0.5 > state.platformB.y) {
+		state.streak = 0;
+		state.score += good;
+	} else if (
+		state.player.x < state.platformB.x - 10 ||
+		state.player.x > state.platformB.x + 10
+	) {
+		state.streak = 0;
+		state.score += better;
+	} else {
+		state.streak += 1;
+		state.score += best * state.streak;
+	}
+
 	state.isSwinging = false;
-	timeout = setTimeout(() => {
-		state = createGameState();
-	}, 1000);
+	timeout = setTimeout(() => state.next(), 1000);
 }
 
 function render() {
@@ -127,13 +191,14 @@ function render() {
 	ctx.save();
 	ctx.scale(devicePixelRatio, devicePixelRatio);
 
-	let scale = Math.min(ctx.height / 360, ctx.width / 500);
+	let scale = Math.min(ctx.height / 360, ctx.width / 700);
 	ctx.scale(scale, scale);
 
 	renderPlatform(state.platformA);
 	renderPlatform(state.platformB);
 	renderRope();
 	renderPlayer();
+	renderScore();
 
 	ctx.restore();
 }
@@ -187,6 +252,13 @@ function renderPlayer() {
 	ctx.restore();
 }
 
+function renderScore() {
+	livesEl.innerHTML = state.lives;
+	scoreEl.innerHTML = state.score;
+	platformEl.innerHTML = state.platform;
+	streakEl.innerHTML = state.streak;
+}
+
 resizeContext(ctx);
 addEventListener('resize', () => resizeContext(ctx), { passive: true });
 
@@ -195,8 +267,12 @@ canvas.addEventListener('contextmenu', (event) => {
 });
 
 canvas.addEventListener('pointerdown', () => {
+	if (state.isTouched) {
+		return;
+	}
 	clearTimeout(timeout);
 	state.reset();
+	state.isTouched = true;
 	state.isSwinging = true;
 	state.isGrabbing = true;
 	state.player.x0 = state.player.x + jump;
