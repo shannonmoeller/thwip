@@ -125,7 +125,9 @@ function updateDude() {
 	state.player.y0 = y;
 
 	if (state.isGrabbing) {
-		state.player.x0 -= pump;
+		if (state.player.x0 < state.player.x) {
+			state.player.x0 -= pump;
+		}
 
 		for (let i = 3; i--; ) {
 			constrain(state.player, state.anchor, { length: ropeLength });
