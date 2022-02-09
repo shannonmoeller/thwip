@@ -2,12 +2,13 @@ import { createContext, clearContext, resizeContext } from './canvas.js';
 import { createLoop } from './loop.js';
 import { constrain, getDistance } from './particles.js';
 
+let dayEl = document.getElementById('day');
 let livesEl = document.getElementById('lives');
 let scoreEl = document.getElementById('score');
 let platformEl = document.getElementById('platform');
 let streakEl = document.getElementById('streak');
 
-let canvas = document.querySelector('canvas');
+let canvas = document.getElementById('canvas');
 let ctx = createContext(canvas);
 
 let second = 1000;
@@ -49,6 +50,7 @@ function createGameState() {
 	}
 
 	return {
+		seed,
 		isTouched: false,
 		isSwinging: false,
 		isGrabbing: false,
@@ -253,6 +255,7 @@ function renderPlayer() {
 }
 
 function renderScore() {
+	dayEl.innerHTML = state.seed;
 	livesEl.innerHTML = state.lives;
 	scoreEl.innerHTML = state.score;
 	platformEl.innerHTML = state.platform;
