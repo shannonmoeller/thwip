@@ -29,7 +29,7 @@ export function createLoop(options) {
 		if (ticks > 0) {
 			if (update) {
 				while (ticks--) {
-					update({ now, prev, delta: frameRate });
+					update(now, prev);
 					now += frameRate;
 					prev += frameRate;
 				}
