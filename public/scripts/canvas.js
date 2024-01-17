@@ -16,10 +16,14 @@ export function resizeContext(ctx) {
 	let height = canvas.clientHeight;
 	let width = canvas.clientWidth;
 
-	ctx.height = height;
-	ctx.width = width;
 	canvas.height = height * devicePixelRatio;
 	canvas.width = width * devicePixelRatio;
+
+	ctx.height = height;
+	ctx.width = width;
+
+	ctx.scale(devicePixelRatio, devicePixelRatio);
+	ctx.translate(ctx.width / 2, ctx.height / 2);
 
 	return ctx;
 }
